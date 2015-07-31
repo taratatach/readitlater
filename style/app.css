@@ -1,3 +1,4 @@
+/* General purpose */
 @font-face {
   font-family: "Dancing Script OT Regular";
   src: url("/style/fonts/DancingScriptOTRegular.otf") format('opentype');
@@ -5,6 +6,42 @@
   font-style: normal;
 }
 
+header > button {
+  float: right;
+  box-sizing: border-box;
+  position: relative;
+  display: block;
+  overflow: hidden;
+  min-width: 2.25rem;
+  width: auto;
+  height: 2.25rem;
+  border: none;
+  background: none;
+  padding: 0 1rem;
+  margin: 0;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 2.25rem;
+  border-radius: 0;
+  text-decoration: none;
+  text-align: center;
+  text-shadow: none;
+  font-style: italic;
+}
+
+.icon {
+  display: block;
+  width: 1.5rem;
+  height: 3rem;
+  background: transparent no-repeat center / 2rem auto;
+  font-size: 0;
+}
+.icon-edit {
+  background-image: url('icons/edit.png');
+}
+/* ------------- */
+
+/* Base settings */
 html, body {
   margin: 0;
   padding: 0;
@@ -22,6 +59,7 @@ h1 {
 p {
   font-size: inherit;
 }
+/* ------------- */
 
 header {
   position: fixed;
@@ -43,6 +81,7 @@ header > h1 {
   color: white;
   text-align: center;
 }
+
 
 #links {
   list-style-type: none;
