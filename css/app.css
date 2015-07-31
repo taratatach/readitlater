@@ -40,9 +40,22 @@ header > h1 {
 
 #links {
   list-style-type: none;
+  margin-top: 0;
   padding-left: 0;
 }
-
+.link {
+  display: block;
+  padding-left: 10px;
+  border-bottom: 1px solid gray;
+    
+  height: 3rem;
+  line-height: 3rem;
+  vertical-align: midlle;
+  
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .link.is-read {
   text-decoration: line-through;
 }
