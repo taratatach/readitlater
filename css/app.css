@@ -1,6 +1,13 @@
+@font-face {
+  font-family: "Dancing Script OT Regular";
+  src: url("/css/fonts/DancingScriptOTRegular.otf") format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 html, body {
   margin: 0;
-  padding: 0.5rem;
+  padding: 0;
 }
 
 body {
@@ -14,6 +21,21 @@ h1 {
 
 p {
   font-size: inherit;
+}
+
+header {
+  height: 3rem;
+  line-height: 3rem;
+  vertical-align: middle;
+  background-color: rgb(0, 138, 255);
+}
+header > h1 {
+  margin-bottom: 0;
+  
+  font-family: "Dancing Script OT Regular";
+  font-size: 2rem;
+  color: white;
+  text-align: center;
 }
 
 #links {
