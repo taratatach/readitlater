@@ -65,17 +65,17 @@ header {
   position: fixed;
   top: 0;
   width: 100%;
-  
+
   background-color: rgb(0, 138, 255);
   box-shadow: 0 1px 2px 1px gray;
-  
+
   height: 3rem;
   line-height: 3rem;
   vertical-align: middle;
 }
 header > h1 {
   margin-bottom: 0;
-  
+
   font-family: "Dancing Script OT Regular";
   font-size: 2rem;
   color: white;
@@ -86,22 +86,26 @@ header > h1 {
 #links {
   list-style-type: none;
   padding-left: 0;
-  
+
   margin-top: 3rem;
 }
-.link {
+.link a {
   display: block;
   padding-left: 10px;
   border-bottom: 1px solid gray;
-    
+
   height: 3rem;
   line-height: 3rem;
   vertical-align: midlle;
-  
+
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .link.is-read {
   text-decoration: line-through;
+}
+
+iframe {
+  display: none;
 }

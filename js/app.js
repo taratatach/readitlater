@@ -42,21 +42,6 @@
     };
   }
 
-  // Open clicked link in browser
-  function openLink(url) {
-    var activity = new MozActivity({
-      name: "view",
-      data: {
-        type: "url",
-        url: url
-      }
-    });
-
-    activity.onsuccess = function() {
-      markAsRead(url);
-    };
-  }
-
   // Change read state in DB for given url
   function markAsRead(url) {
     var objectStore = db.transaction(["links"], "readwrite").objectStore("links");
@@ -99,21 +84,24 @@
   }
 
   function createLink(title, url, isRead) {
-    var link = document.createElement("li");
+    var listElem = document.createElement("li");
+    var link = document.createElement("a");
 
     link.innerHTML = title;
-    link.setAttribute("data-url", url);
+    link.setAttribute("href", url);
+    link.setAttribute("target", "_blank");
 
-    link.classList.add("link");
+    listElem.appendChild(link);
+    listElem.classList.add("link");
     if (isRead) {
-      link.classList.add("is-read");
+      listElem.classList.add("is-read");
     }
 
     link.onclick = function() {
-      openLink(url);
+      markAsRead(url);
     };
 
-    return link;
+    return listElem;
   }
 
   // DOMContentLoaded is fired once the document has been loaded and parsed,
