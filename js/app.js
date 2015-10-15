@@ -1,107 +1,55 @@
 "use strict";
 
 (function(){
-  var db, webActivity;
+  var webActivity;
 
-  // Load indexedDB
-  window.indexedDB = window.indexedDB || window.mozIndexedDB;
-
-  // Manage database
-  function openDB(successCallback) {
-    var DBOpenRequest = window.indexedDB.open("ReadItLater", 1);
-
-    DBOpenRequest.onsuccess = function() {
-      db = DBOpenRequest.result;
-      successCallback();
-    };
-
-    DBOpenRequest.onupgradeneeded = function(event) {
-      db = event.target.result;
-      var objectStore = db.createObjectStore("links", { keyPath: "url" });
-
-      objectStore.createIndex("title", "title", { unique: false });
-      objectStore.createIndex("read", "read", { unique: false });
-      objectStore.createIndex("addedAt", "addedAt", { unique: false });
-    };
-  }
-
-  // Create link object and store in DB
-  function saveLink(url) {
-    var title = url;
-    var newLink = { url: url, title: title, read: false, addedAt: Date.now() };
-    var transaction = db.transaction(["links"], "readwrite");
-    var objectStore = transaction.objectStore("links");
-    var objectStoreRequest = objectStore.add(newLink);
-
-    objectStoreRequest.onsuccess = function() {
-      displayLinks();
-      webActivity.postResult("Link saved for later!");
-    };
-    objectStoreRequest.onerror = function() {
-      webActivity.postError("Error. Link was not saved.");
-    };
-  }
-
-  // Change read state in DB for given url
-  function markAsRead(url) {
-    var objectStore = db.transaction(["links"], "readwrite").objectStore("links");
-    var linkRequest = objectStore.get(url);
-
-    linkRequest.onsuccess = function() {
-      var link = linkRequest.result;
-
-      if (!link.read) {
-        link.read = true;
-
-        var updateLinkRequest = objectStore.put(link);
-        updateLinkRequest.onsuccess = function() {
-          displayLinks();
-        };
-      }
-    };
-  }
-
-  // Add saved links to the DOM
+  // Reload and display all the links stored in the DB
   function displayLinks() {
-    var links = document.getElementById("links");
-    links.innerHTML = "";
+    var getLinks = LinksDB.getLinks();
+    var linkList = document.getElementById("links");
 
-    var objectStore = db.transaction("links").objectStore("links");
-    objectStore.openCursor().onsuccess = function(event) {
-      var cursor = event.target.result;
+    getLinks.then(function(linkObjects) {
+      linkList.innerHTML = "";
 
-      if (cursor) {
-        var link = createLink(
-          cursor.value.title,
-          cursor.value.url,
-          cursor.value.read
-        );
-        links.appendChild(link);
+      linkObjects.forEach(function(linkObject) {
+        var linkElem = createLinkElem(linkObject);
 
-        cursor.continue();
-      }
-    };
+        linkList.appendChild(linkElem);
+      });
+    });
   }
 
-  function createLink(title, url, isRead) {
+  // Create custom Link element to be inserted in the link list
+  function createLinkElem(linkObject) {
     var listElem = document.createElement("li");
-    var link = document.createElement("a");
+    var linkElem = document.createElement("a");
 
-    link.innerHTML = title;
-    link.setAttribute("href", url);
-    link.setAttribute("target", "_blank");
+    linkElem.innerHTML = linkObject.title;
+    linkElem.setAttribute("href", linkObject.url);
+    linkElem.setAttribute("target", "_blank");
 
-    listElem.appendChild(link);
     listElem.classList.add("link");
-    if (isRead) {
+    if (linkObject.read) {
       listElem.classList.add("is-read");
     }
 
-    link.onclick = function() {
-      markAsRead(url);
+    linkElem.onclick = function() {
+      markAsRead(linkObject);
     };
 
+    listElem.appendChild(linkElem);
+
     return listElem;
+  }
+
+  // Change read state in DB for given linkObject
+  // Reload and display all the links in the DB
+  function markAsRead(linkObject) {
+    var markLinkread = LinksDB.markLinkRead(linkObject.url);
+
+    markLinkread.then(function() {
+      displayLinks();
+    });
   }
 
   // DOMContentLoaded is fired once the document has been loaded and parsed,
@@ -125,17 +73,22 @@
       // https://developer.mozilla.org/Web/API/Element.innerHTML#Security_considerations
       // message.textContent = translate('message');
 
-      openDB(function() {
+      LinksDB.ready().then(function() {
         displayLinks();
-      });
 
-      // Handle incoming URLs
-      navigator.mozSetMessageHandler("activity", function(activityRequest) {
-        webActivity = activityRequest;
+        // Handle incoming URLs
+        navigator.mozSetMessageHandler("activity", function(activityRequest) {
+          webActivity = activityRequest;
 
-        var url = webActivity.source.data.url;
-        openDB(function() {
-          saveLink(url);
+          var url = webActivity.source.data.url;
+          var addLink = LinksDB.addLink(url);
+
+          addLink.then(function() {
+            displayLinks();
+            webActivity.postResult();
+          }).catch(function() {
+            webActivity.postError("Error. Link was not saved.");
+          });
         });
       });
     }
